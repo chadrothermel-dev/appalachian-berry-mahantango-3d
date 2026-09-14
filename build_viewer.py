@@ -301,6 +301,8 @@ html_content = f"""<!DOCTYPE html>
             z-index: 15;
             box-shadow: 0 10px 25px rgba(0,0,0,0.7);
             text-align: center;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
         }}
         #probe-card h3 {{
             font-size: 0.65rem;
@@ -407,8 +409,7 @@ html_content = f"""<!DOCTYPE html>
         .title-badge,
         .controls-panel,
         .corridors-card,
-        .legend-card,
-        #probe-card {{
+        .legend-card {{
             transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
                         transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
                         visibility 0.35s;
@@ -417,31 +418,25 @@ html_content = f"""<!DOCTYPE html>
 
         body.hud-hidden header .title-badge {{
             opacity: 0;
-            transform: translateY(-24px);
+            transform: translateY(-30px);
             pointer-events: none;
             visibility: hidden;
         }}
         body.hud-hidden .controls-panel {{
             opacity: 0;
-            transform: translateX(-350px);
+            transform: translateX(-360px);
             pointer-events: none;
             visibility: hidden;
         }}
         body.hud-hidden .corridors-card {{
             opacity: 0;
-            transform: translateX(320px);
+            transform: translateX(340px);
             pointer-events: none;
             visibility: hidden;
         }}
         body.hud-hidden .legend-card {{
             opacity: 0;
-            transform: translateX(320px);
-            pointer-events: none;
-            visibility: hidden;
-        }}
-        body.hud-hidden #probe-card {{
-            opacity: 0;
-            transform: translate(-50%, -20px);
+            transform: translateX(340px);
             pointer-events: none;
             visibility: hidden;
         }}
@@ -587,6 +582,16 @@ html_content = f"""<!DOCTYPE html>
         .card-collapsed .card-collapse-btn span {{
             transform: rotate(-90deg);
         }}
+        .controls-panel.card-collapsed {{
+            max-height: 52px;
+            overflow: hidden;
+            padding-bottom: 8px;
+        }}
+        .controls-panel.card-collapsed .panel-header {{
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }}
         .card-collapse-btn span {{
             display: inline-block;
             transition: transform 0.2s ease;
@@ -666,7 +671,10 @@ html_content = f"""<!DOCTYPE html>
                     </svg>
                     <span id="pin-text">Auto-Hide</span>
                 </button>
-                <button id="hud-hide-btn" class="header-btn close-btn" title="Hide Overlay Controls (H)">
+                <button id="toggle-controls-btn" class="header-btn card-collapse-btn" title="Collapse / Expand Controls Panel">
+                    <span>▾</span>
+                </button>
+                <button id="hud-hide-btn" class="header-btn close-btn" title="Hide All Overlay Windows (Press H)">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -675,60 +683,62 @@ html_content = f"""<!DOCTYPE html>
             </div>
         </div>
 
-        <div class="control-group">
-            <label>
-                <span>Vertical Relief Exaggeration</span>
-                <span class="val-badge" id="exag-val">2.5x</span>
-            </label>
-            <input type="range" id="exag-slider" min="1.0" max="5.0" step="0.1" value="2.5">
-        </div>
-
-        <div class="control-group">
-            <label>
-                <span>Sun Light Azimuth</span>
-                <span class="val-badge" id="sun-val">315° NW</span>
-            </label>
-            <input type="range" id="sun-slider" min="0" max="360" step="5" value="315">
-        </div>
-
-        <div class="control-group">
-            <label>Camera Presets</label>
-            <div class="btn-group">
-                <button class="action-btn active" id="btn-valley">Valley Flight</button>
-                <button class="action-btn" id="btn-central">Central Valley</button>
-                <button class="action-btn" id="btn-lykens">Eastern Mining</button>
-                <button class="action-btn" id="btn-gap">River Gap</button>
-                <button class="action-btn" id="btn-mahantango">North Gaps</button>
-                <button class="action-btn" id="btn-topdown">Top-Down Map</button>
+        <div class="card-content" id="controls-panel-body">
+            <div class="control-group">
+                <label>
+                    <span>Vertical Relief Exaggeration</span>
+                    <span class="val-badge" id="exag-val">2.5x</span>
+                </label>
+                <input type="range" id="exag-slider" min="1.0" max="5.0" step="0.1" value="2.5">
             </div>
-        </div>
 
-        <div class="control-group">
-            <label>Town &amp; Landmark Labels</label>
-            <div class="btn-group-3">
-                <button class="action-btn active" id="lbl-all">All</button>
-                <button class="action-btn" id="lbl-major">Boroughs</button>
-                <button class="action-btn" id="lbl-off">Off</button>
+            <div class="control-group">
+                <label>
+                    <span>Sun Light Azimuth</span>
+                    <span class="val-badge" id="sun-val">315° NW</span>
+                </label>
+                <input type="range" id="sun-slider" min="0" max="360" step="5" value="315">
             </div>
-        </div>
 
-        <div class="control-group">
-            <label>Rendering &amp; Animation</label>
-            <div class="btn-group">
-                <button class="action-btn" id="tour-btn">Tour Orbit</button>
-                <button class="action-btn" id="wire-btn">Wireframe</button>
-                <button class="action-btn" id="reset-btn">Reset View</button>
-                <button class="action-btn" id="btn-regional">Overview</button>
+            <div class="control-group">
+                <label>Camera Presets</label>
+                <div class="btn-group">
+                    <button class="action-btn active" id="btn-valley">Valley Flight</button>
+                    <button class="action-btn" id="btn-central">Central Valley</button>
+                    <button class="action-btn" id="btn-lykens">Eastern Mining</button>
+                    <button class="action-btn" id="btn-gap">River Gap</button>
+                    <button class="action-btn" id="btn-mahantango">North Gaps</button>
+                    <button class="action-btn" id="btn-topdown">Top-Down Map</button>
+                </div>
             </div>
-        </div>
 
-        <div id="geo-badge">
-            <strong>Geology:</strong> Folded Alleghanian sandstone ramparts enclosing fertile agricultural Devonian red shale basin, breached by antecedent Susquehanna River.
-        </div>
+            <div class="control-group">
+                <label>Town &amp; Landmark Labels</label>
+                <div class="btn-group-3">
+                    <button class="action-btn active" id="lbl-all">All</button>
+                    <button class="action-btn" id="lbl-major">Boroughs</button>
+                    <button class="action-btn" id="lbl-off">Off</button>
+                </div>
+            </div>
 
-        <div class="nav-hint">
-            <strong>Navigation:</strong> Left-drag to Rotate | Right-drag to Pan | Scroll to Zoom | Click any pin for history.<br>
-            <strong>Overlay:</strong> Controls auto-hide when navigating. Press <strong>H</strong> to toggle, or click <strong>Pin</strong> to keep open.
+            <div class="control-group">
+                <label>Rendering &amp; Animation</label>
+                <div class="btn-group">
+                    <button class="action-btn" id="tour-btn">Tour Orbit</button>
+                    <button class="action-btn" id="wire-btn">Wireframe</button>
+                    <button class="action-btn" id="reset-btn">Reset View</button>
+                    <button class="action-btn" id="btn-regional">Overview</button>
+                </div>
+            </div>
+
+            <div id="geo-badge">
+                <strong>Geology:</strong> Folded Alleghanian sandstone ramparts enclosing fertile agricultural Devonian red shale basin, breached by antecedent Susquehanna River.
+            </div>
+
+            <div class="nav-hint">
+                <strong>Navigation:</strong> Left-drag to Rotate | Right-drag to Pan | Scroll to Zoom | Click any pin for history.<br>
+                <strong>Overlay:</strong> Controls auto-hide when navigating. Press <strong>H</strong> to toggle, or click <strong>Pin</strong> to keep open.
+            </div>
         </div>
     </div>
 
@@ -1407,7 +1417,8 @@ html_content = f"""<!DOCTYPE html>
         let isHoveringHUD = false;
         let isInteractingCanvas = false;
         let autoHideTimer = null;
-        const HIDE_TIMEOUT_MS = 4200;
+        let probeTimer = null;
+        const HIDE_TIMEOUT_MS = 4000;
 
         function showHUD() {{
             isHudVisible = true;
@@ -1457,7 +1468,7 @@ html_content = f"""<!DOCTYPE html>
                 clearTimeout(autoHideTimer);
                 autoHideTimer = null;
             }}
-            if (isPinned || isHoveringHUD || isInteractingCanvas) return;
+            if (isPinned || isHoveringHUD || isInteractingCanvas || !isHudVisible) return;
             autoHideTimer = setTimeout(() => {{
                 hideHUD();
             }}, HIDE_TIMEOUT_MS);
@@ -1467,7 +1478,7 @@ html_content = f"""<!DOCTYPE html>
             // Floating toggle button
             document.getElementById("floating-hud-toggle").addEventListener("click", (e) => {{
                 e.stopPropagation();
-                toggleHUD();
+                showHUD();
             }});
 
             // Panel header buttons
@@ -1491,6 +1502,7 @@ html_content = f"""<!DOCTYPE html>
                     }});
                 }}
             }};
+            setupCollapse("toggle-controls-btn", "controls-panel");
             setupCollapse("toggle-title-btn", "title-card");
             setupCollapse("toggle-corridors-btn", "corridors-card");
             setupCollapse("toggle-legend-btn", "legend-card");
@@ -1500,21 +1512,31 @@ html_content = f"""<!DOCTYPE html>
             hudCards.forEach(card => {{
                 card.addEventListener("mouseenter", () => {{
                     isHoveringHUD = true;
-                    if (autoHideTimer) clearTimeout(autoHideTimer);
+                    if (autoHideTimer) {{
+                        clearTimeout(autoHideTimer);
+                        autoHideTimer = null;
+                    }}
                 }});
                 card.addEventListener("mouseleave", () => {{
                     isHoveringHUD = false;
-                    resetAutoHideTimer();
+                    if (isHudVisible) {{
+                        resetAutoHideTimer();
+                    }}
                 }});
                 card.addEventListener("touchstart", () => {{
                     isHoveringHUD = true;
-                    if (autoHideTimer) clearTimeout(autoHideTimer);
+                    if (autoHideTimer) {{
+                        clearTimeout(autoHideTimer);
+                        autoHideTimer = null;
+                    }}
                 }}, {{ passive: true }});
             }});
 
             // Detect user interaction with 3D canvas / OrbitControls
             controls.addEventListener("start", () => {{
                 isInteractingCanvas = true;
+                const probe = document.getElementById("probe-card");
+                if (probe) probe.style.display = "none";
                 if (!isPinned) {{
                     hideHUD();
                 }}
@@ -1522,37 +1544,49 @@ html_content = f"""<!DOCTYPE html>
 
             controls.addEventListener("end", () => {{
                 isInteractingCanvas = false;
-                if (!isPinned) {{
+            }});
+
+            window.addEventListener("pointerup", () => {{
+                isInteractingCanvas = false;
+            }});
+            window.addEventListener("mouseup", () => {{
+                isInteractingCanvas = false;
+            }});
+
+            // Mouse wheel zooming on canvas
+            renderer.domElement.addEventListener("wheel", () => {{
+                const probe = document.getElementById("probe-card");
+                if (probe) probe.style.display = "none";
+                if (!isPinned && isHudVisible) {{
+                    hideHUD();
+                }}
+            }}, {{ passive: true }});
+
+            // Pointer down on canvas
+            renderer.domElement.addEventListener("pointerdown", () => {{
+                if (!isPinned && isHudVisible) {{
+                    hideHUD();
+                }}
+            }});
+
+            // Mouse movement resets timer only when HUD is currently visible and not interacting
+            window.addEventListener("mousemove", (e) => {{
+                if (isHudVisible && !isInteractingCanvas && !isHoveringHUD) {{
                     resetAutoHideTimer();
                 }}
             }});
 
-            // Mouse movement reveals HUD if not actively dragging
-            window.addEventListener("mousemove", (e) => {{
-                if (!isInteractingCanvas) {{
-                    if (!isHudVisible) {{
-                        showHUD();
-                    }} else {{
-                        resetAutoHideTimer();
-                    }}
-                }}
-            }});
-
-            // Touch events on mobile/touchscreen
-            window.addEventListener("touchstart", (e) => {{
-                if (!isHoveringHUD && !isInteractingCanvas) {{
-                    if (!isHudVisible) {{
-                        showHUD();
-                    }} else {{
-                        resetAutoHideTimer();
-                    }}
+            // Touch events on mobile/touchscreen outside HUD
+            renderer.domElement.addEventListener("touchstart", () => {{
+                if (!isPinned && isHudVisible) {{
+                    hideHUD();
                 }}
             }}, {{ passive: true }});
 
-            // Keyboard shortcut 'H' to toggle HUD, 'P' to toggle Pin, Escape to close
+            // Keyboard shortcut 'H' or 'C' to toggle HUD, 'P' to toggle Pin, Escape to close
             window.addEventListener("keydown", (e) => {{
                 if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-                if (e.key === "h" || e.key === "H") {{
+                if (e.key === "h" || e.key === "H" || e.key === "c" || e.key === "C") {{
                     e.preventDefault();
                     toggleHUD();
                 }} else if (e.key === "p" || e.key === "P") {{
@@ -1575,7 +1609,7 @@ html_content = f"""<!DOCTYPE html>
                 btn.textContent = "Pause Orbit";
                 tourAngle = Math.atan2(camera.position.z - controls.target.z, camera.position.x - controls.target.x);
                 if (!isPinned) {{
-                    setTimeout(() => hideHUD(), 500);
+                    setTimeout(() => hideHUD(), 400);
                 }}
             }} else {{
                 btn.classList.remove("active");
@@ -1589,8 +1623,9 @@ html_content = f"""<!DOCTYPE html>
         }}
 
         function onMouseMove(event) {{
-            if (!isHudVisible) {{
-                document.getElementById("probe-card").style.display = "none";
+            if (isInteractingCanvas) {{
+                const probeCard = document.getElementById("probe-card");
+                if (probeCard) probeCard.style.display = "none";
                 return;
             }}
 
@@ -1613,8 +1648,17 @@ html_content = f"""<!DOCTYPE html>
                     const lon = LONS[c];
 
                     probeCard.style.display = "block";
+                    probeCard.style.opacity = "1";
                     document.getElementById("probe-val").textContent = elev.toFixed(0) + " ft (" + (elev * 0.3048).toFixed(0) + " m)";
                     document.getElementById("probe-sub").textContent = "Lat: " + lat.toFixed(4) + "° N | Lon: " + Math.abs(lon).toFixed(4) + "° W";
+
+                    if (probeTimer) clearTimeout(probeTimer);
+                    probeTimer = setTimeout(() => {{
+                        probeCard.style.opacity = "0";
+                        setTimeout(() => {{
+                            if (probeCard.style.opacity === "0") probeCard.style.display = "none";
+                        }}, 250);
+                    }}, 2500);
                     return;
                 }}
             }}
