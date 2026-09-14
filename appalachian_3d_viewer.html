@@ -391,6 +391,195 @@
             font-size: 0.68rem;
             color: #94a3b8;
         }
+
+        /* Auto-Hide and Smooth Transitions for Overlay Panels */
+        .title-badge,
+        .controls-panel,
+        .corridors-card,
+        .legend-card,
+        #probe-card {
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        visibility 0.35s;
+            will-change: transform, opacity;
+        }
+
+        body.hud-hidden header .title-badge {
+            opacity: 0;
+            transform: translateY(-24px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+        body.hud-hidden .controls-panel {
+            opacity: 0;
+            transform: translateX(-350px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+        body.hud-hidden .corridors-card {
+            opacity: 0;
+            transform: translateX(320px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+        body.hud-hidden .legend-card {
+            opacity: 0;
+            transform: translateX(320px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+        body.hud-hidden #probe-card {
+            opacity: 0;
+            transform: translate(-50%, -20px);
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        /* Floating Controls Toggle Button */
+        #floating-hud-toggle {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.65), 0 0 16px rgba(56, 189, 248, 0.25);
+            font-size: 0.8rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(12px) scale(0.92);
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        background 0.15s, border-color 0.15s, box-shadow 0.15s, visibility 0.3s;
+        }
+        #floating-hud-toggle:hover {
+            background: rgba(30, 41, 59, 0.98);
+            border-color: #38bdf8;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.75), 0 0 24px rgba(56, 189, 248, 0.45);
+            transform: translateY(-2px) scale(1.02);
+        }
+        body.hud-hidden #floating-hud-toggle {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            visibility: visible;
+        }
+        #floating-hud-toggle svg {
+            color: #38bdf8;
+            transition: transform 0.4s ease;
+        }
+        #floating-hud-toggle:hover svg {
+            transform: rotate(45deg);
+        }
+        .hud-badge-key {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            font-family: monospace;
+        }
+
+        /* Panel Top-Bar & Pin Controls */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .panel-title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: 0.3px;
+        }
+        .panel-header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-btn {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #94a3b8;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+        .header-btn:hover {
+            background: #334155;
+            color: #f8fafc;
+            border-color: #38bdf8;
+        }
+        .header-btn.pinned {
+            background: rgba(2, 132, 199, 0.25);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+        .header-btn.close-btn {
+            padding: 4px 6px;
+        }
+        .header-btn.close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* Card Collapse & Header Chevron Buttons */
+        .card-collapse-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            font-size: 0.68rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-collapse-btn:hover {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+        .card-collapsed .card-content {
+            display: none !important;
+        }
+        .card-collapsed .card-collapse-btn span {
+            transform: rotate(-90deg);
+        }
+        .card-collapse-btn span {
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -398,16 +587,19 @@
 <body>
     <div id="canvas-container"></div>
     <header>
-        <div class="title-badge">
+        <div class="title-badge" id="title-card">
             <h1>
                 Appalachian 3D Topography
                 <span class="badge-pill">USGS DEM</span>
                 <span class="badge-pill badge-pa">Pennsylvania</span>
                 <span class="badge-pill badge-towns">17 Towns &amp; Boroughs</span>
+                <button id="toggle-title-btn" class="card-collapse-btn" style="margin-left: auto;" title="Collapse / Expand Description"><span>▾</span></button>
             </h1>
-            <p class="subtitle">
-                3D topological model of <strong>Mahantango Mountain</strong> (North), <strong>Berry Mountain</strong> (South), the intervening <strong>Lykens Valley</strong>, and its historic settlement network.
-            </p>
+            <div class="card-content">
+                <p class="subtitle" style="margin-top: 4px;">
+                    3D topological model of <strong>Mahantango Mountain</strong> (North), <strong>Berry Mountain</strong> (South), the intervening <strong>Lykens Valley</strong>, and its historic settlement network.
+                </p>
+            </div>
         </div>
     </header>
 
@@ -418,31 +610,60 @@
     </div>
 
     <!-- Regional Border Corridors -->
-    <div class="corridors-card">
+    <div class="corridors-card" id="corridors-card">
         <div class="corridor-title">
             <span>Bordering Corridors</span>
-            <span style="font-size: 0.65rem; color: #38bdf8;">Click to Orient</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 0.65rem; color: #38bdf8;">Click to Orient</span>
+                <button id="toggle-corridors-btn" class="card-collapse-btn" title="Collapse / Expand Corridors"><span>▾</span></button>
+            </div>
         </div>
-        <div class="corridor-item" id="corr-halifax">
-            <div><strong>◄ South: Halifax</strong><br><span>PA-147 / River (~6 mi)</span></div>
-            <span style="font-size: 0.8rem;">↓</span>
-        </div>
-        <div class="corridor-item" id="corr-herndon">
-            <div><strong>▲ North: Herndon</strong><br><span>PA-147 / Sunbury (~3 mi)</span></div>
-            <span style="font-size: 0.8rem;">↑</span>
-        </div>
-        <div class="corridor-item" id="corr-hegins">
-            <div><strong>East: Valley View &amp; Hegins ►</strong><br><span>PA-25 / Hegins Valley (~5 mi)</span></div>
-            <span style="font-size: 0.8rem;">→</span>
-        </div>
-        <div class="corridor-item" id="corr-towercity">
-            <div><strong>East: Tower City ►</strong><br><span>US-209 / Coal Field (~4 mi)</span></div>
-            <span style="font-size: 0.8rem;">→</span>
+        <div class="card-content">
+            <div class="corridor-item" id="corr-halifax">
+                <div><strong>◄ South: Halifax</strong><br><span>PA-147 / River (~6 mi)</span></div>
+                <span style="font-size: 0.8rem;">↓</span>
+            </div>
+            <div class="corridor-item" id="corr-herndon">
+                <div><strong>▲ North: Herndon</strong><br><span>PA-147 / Sunbury (~3 mi)</span></div>
+                <span style="font-size: 0.8rem;">↑</span>
+            </div>
+            <div class="corridor-item" id="corr-hegins">
+                <div><strong>East: Valley View &amp; Hegins ►</strong><br><span>PA-25 / Hegins Valley (~5 mi)</span></div>
+                <span style="font-size: 0.8rem;">→</span>
+            </div>
+            <div class="corridor-item" id="corr-towercity">
+                <div><strong>East: Tower City ►</strong><br><span>US-209 / Coal Field (~4 mi)</span></div>
+                <span style="font-size: 0.8rem;">→</span>
+            </div>
         </div>
     </div>
 
     <!-- Controls Panel -->
-    <div class="controls-panel">
+    <div class="controls-panel" id="controls-panel">
+        <div class="panel-header">
+            <div class="panel-title-area">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Controls &amp; Layers</span>
+            </div>
+            <div class="panel-header-buttons">
+                <button id="pin-btn" class="header-btn" title="Pin controls (keep always visible)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6l.8.8.8-.8v-6H18v-2l-2-2z"/>
+                    </svg>
+                    <span id="pin-text">Auto-Hide</span>
+                </button>
+                <button id="hud-hide-btn" class="header-btn close-btn" title="Hide Overlay Controls (H)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
         <div class="control-group">
             <label>
                 <span>Vertical Relief Exaggeration</span>
@@ -495,7 +716,8 @@
         </div>
 
         <div class="nav-hint">
-            <strong>Navigation:</strong> Left-drag to Rotate | Right-drag to Pan | Scroll to Zoom | Click any town pin for history.
+            <strong>Navigation:</strong> Left-drag to Rotate | Right-drag to Pan | Scroll to Zoom | Click any pin for history.<br>
+            <strong>Overlay:</strong> Controls auto-hide when navigating. Press <strong>H</strong> to toggle, or click <strong>Pin</strong> to keep open.
         </div>
     </div>
 
@@ -510,19 +732,34 @@
         </div>
     </div>
 
-    <div class="legend-card">
+    <div class="legend-card" id="legend-card">
         <div class="legend-title">
             <span>Elevation (AMSL)</span>
-            <span>Hypsometric Scale</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span>Hypsometric Scale</span>
+                <button id="toggle-legend-btn" class="card-collapse-btn" title="Collapse / Expand Legend"><span>▾</span></button>
+            </div>
         </div>
-        <div class="legend-bar"></div>
-        <div class="legend-ticks">
-            <span>360ft (River)</span>
-            <span>600ft (Valley)</span>
-            <span>1,100ft</span>
-            <span>1,745ft (Peak)</span>
+        <div class="card-content">
+            <div class="legend-bar"></div>
+            <div class="legend-ticks">
+                <span>360ft (River)</span>
+                <span>600ft (Valley)</span>
+                <span>1,100ft</span>
+                <span>1,745ft (Peak)</span>
+            </div>
         </div>
     </div>
+
+    <!-- Floating HUD Controls Toggle Button -->
+    <button id="floating-hud-toggle" title="Show Controls (Press H)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Controls</span>
+        <span class="hud-badge-key">H</span>
+    </button>
 
     <div id="poi-container"></div>
 
@@ -681,6 +918,7 @@
                 }
             });
 
+            setupHUDManager();
             animate();
         }
 
@@ -1153,6 +1391,171 @@
             isCamTransitioning = true;
         }
 
+        let isPinned = false;
+        let isHudVisible = true;
+        let isHoveringHUD = false;
+        let isInteractingCanvas = false;
+        let autoHideTimer = null;
+        const HIDE_TIMEOUT_MS = 4200;
+
+        function showHUD() {
+            isHudVisible = true;
+            document.body.classList.remove("hud-hidden");
+            resetAutoHideTimer();
+        }
+
+        function hideHUD(force = false) {
+            const modal = document.getElementById("feature-modal");
+            const modalOpen = modal && modal.style.display === "block";
+            if ((isPinned || modalOpen) && !force) return;
+            isHudVisible = false;
+            document.body.classList.add("hud-hidden");
+            if (autoHideTimer) {
+                clearTimeout(autoHideTimer);
+                autoHideTimer = null;
+            }
+        }
+
+        function toggleHUD() {
+            if (isHudVisible) {
+                hideHUD(true);
+            } else {
+                showHUD();
+            }
+        }
+
+        function togglePin() {
+            isPinned = !isPinned;
+            const pinBtn = document.getElementById("pin-btn");
+            const pinText = document.getElementById("pin-text");
+            if (isPinned) {
+                pinBtn.classList.add("pinned");
+                pinText.textContent = "Pinned";
+                pinBtn.title = "Pinned: Controls stay visible. Click to unpin.";
+                showHUD();
+            } else {
+                pinBtn.classList.remove("pinned");
+                pinText.textContent = "Auto-Hide";
+                pinBtn.title = "Auto-Hide active: Controls hide when inactive or orbiting. Click to pin.";
+                resetAutoHideTimer();
+            }
+        }
+
+        function resetAutoHideTimer() {
+            if (autoHideTimer) {
+                clearTimeout(autoHideTimer);
+                autoHideTimer = null;
+            }
+            if (isPinned || isHoveringHUD || isInteractingCanvas) return;
+            autoHideTimer = setTimeout(() => {
+                hideHUD();
+            }, HIDE_TIMEOUT_MS);
+        }
+
+        function setupHUDManager() {
+            // Floating toggle button
+            document.getElementById("floating-hud-toggle").addEventListener("click", (e) => {
+                e.stopPropagation();
+                toggleHUD();
+            });
+
+            // Panel header buttons
+            document.getElementById("pin-btn").addEventListener("click", (e) => {
+                e.stopPropagation();
+                togglePin();
+            });
+            document.getElementById("hud-hide-btn").addEventListener("click", (e) => {
+                e.stopPropagation();
+                hideHUD(true);
+            });
+
+            // Card collapse toggles
+            const setupCollapse = (btnId, cardId) => {
+                const btn = document.getElementById(btnId);
+                const card = document.getElementById(cardId);
+                if (btn && card) {
+                    btn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        card.classList.toggle("card-collapsed");
+                    });
+                }
+            };
+            setupCollapse("toggle-title-btn", "title-card");
+            setupCollapse("toggle-corridors-btn", "corridors-card");
+            setupCollapse("toggle-legend-btn", "legend-card");
+
+            // Prevent auto-hiding while cursor is inside any control panel
+            const hudCards = document.querySelectorAll(".controls-panel, .corridors-card, .legend-card, .title-badge, #feature-modal");
+            hudCards.forEach(card => {
+                card.addEventListener("mouseenter", () => {
+                    isHoveringHUD = true;
+                    if (autoHideTimer) clearTimeout(autoHideTimer);
+                });
+                card.addEventListener("mouseleave", () => {
+                    isHoveringHUD = false;
+                    resetAutoHideTimer();
+                });
+                card.addEventListener("touchstart", () => {
+                    isHoveringHUD = true;
+                    if (autoHideTimer) clearTimeout(autoHideTimer);
+                }, { passive: true });
+            });
+
+            // Detect user interaction with 3D canvas / OrbitControls
+            controls.addEventListener("start", () => {
+                isInteractingCanvas = true;
+                if (!isPinned) {
+                    hideHUD();
+                }
+            });
+
+            controls.addEventListener("end", () => {
+                isInteractingCanvas = false;
+                if (!isPinned) {
+                    resetAutoHideTimer();
+                }
+            });
+
+            // Mouse movement reveals HUD if not actively dragging
+            window.addEventListener("mousemove", (e) => {
+                if (!isInteractingCanvas) {
+                    if (!isHudVisible) {
+                        showHUD();
+                    } else {
+                        resetAutoHideTimer();
+                    }
+                }
+            });
+
+            // Touch events on mobile/touchscreen
+            window.addEventListener("touchstart", (e) => {
+                if (!isHoveringHUD && !isInteractingCanvas) {
+                    if (!isHudVisible) {
+                        showHUD();
+                    } else {
+                        resetAutoHideTimer();
+                    }
+                }
+            }, { passive: true });
+
+            // Keyboard shortcut 'H' to toggle HUD, 'P' to toggle Pin, Escape to close
+            window.addEventListener("keydown", (e) => {
+                if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+                if (e.key === "h" || e.key === "H") {
+                    e.preventDefault();
+                    toggleHUD();
+                } else if (e.key === "p" || e.key === "P") {
+                    e.preventDefault();
+                    togglePin();
+                } else if (e.key === "Escape" && isHudVisible) {
+                    hideHUD(true);
+                }
+            });
+
+            // Start initial timer
+            resetAutoHideTimer();
+        }
+
         function toggleTour() {
             isTouring = !isTouring;
             const btn = document.getElementById("tour-btn");
@@ -1160,6 +1563,9 @@
                 btn.classList.add("active");
                 btn.textContent = "Pause Orbit";
                 tourAngle = Math.atan2(camera.position.z - controls.target.z, camera.position.x - controls.target.x);
+                if (!isPinned) {
+                    setTimeout(() => hideHUD(), 500);
+                }
             } else {
                 btn.classList.remove("active");
                 btn.textContent = "Tour Orbit";
@@ -1172,6 +1578,11 @@
         }
 
         function onMouseMove(event) {
+            if (!isHudVisible) {
+                document.getElementById("probe-card").style.display = "none";
+                return;
+            }
+
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
