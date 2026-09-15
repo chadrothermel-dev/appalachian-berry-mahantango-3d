@@ -123,7 +123,9 @@ html_content = f"""<!DOCTYPE html>
             z-index: 10;
             max-height: calc(100vh - 170px);
             overflow-y: auto;
+            touch-action: pan-y;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }}
         .controls-panel::-webkit-scrollbar {{
             width: 6px;
@@ -165,12 +167,15 @@ html_content = f"""<!DOCTYPE html>
             outline: none;
             cursor: pointer;
             margin: 6px 0;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
         }}
         .control-group input[type="range"]::-webkit-slider-thumb {{
             -webkit-appearance: none;
             appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #38bdf8;
             border: 2px solid #ffffff;
@@ -179,8 +184,8 @@ html_content = f"""<!DOCTYPE html>
             transition: transform 0.1s, background-color 0.1s;
         }}
         .control-group input[type="range"]::-moz-range-thumb {{
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #38bdf8;
             border: 2px solid #ffffff;
@@ -243,6 +248,8 @@ html_content = f"""<!DOCTYPE html>
             width: 280px;
             box-shadow: 0 12px 32px rgba(0,0,0,0.7);
             z-index: 10;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }}
         .corridor-title {{
             font-size: 0.76rem;
@@ -395,6 +402,17 @@ html_content = f"""<!DOCTYPE html>
             color: #94a3b8;
             margin-top: 1px;
             font-family: monospace;
+        }}
+
+        #poi-container {{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 5;
         }}
 
         .poi-label {{
@@ -694,23 +712,42 @@ html_content = f"""<!DOCTYPE html>
                 top: max(8px, var(--sat));
                 left: max(8px, var(--sal));
                 right: max(8px, var(--sar));
-                flex-direction: column;
-                gap: 6px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: flex-start;
                 pointer-events: none;
+                z-index: 25;
             }}
             .title-badge {{
-                width: 100%;
-                max-width: 100%;
-                padding: 7px 12px;
-                border-radius: 10px;
+                pointer-events: auto;
+                width: auto;
+                max-width: calc(100vw - 130px);
+                padding: 6px 10px;
+                border-radius: 12px;
+                transition: max-width 0.3s ease, padding 0.3s ease, transform 0.35s ease, opacity 0.35s ease;
             }}
             .title-badge.card-collapsed {{
-                padding-bottom: 7px;
+                padding: 5px 9px;
+                max-height: 40px;
+                overflow: hidden;
+            }}
+            .title-badge:not(.card-collapsed) {{
+                max-width: min(340px, calc(100vw - 16px));
+                max-height: calc(100vh - 80px);
+                overflow-y: auto;
+                touch-action: pan-y;
+                z-index: 75;
             }}
             h1 {{
-                font-size: 0.85rem;
-                gap: 6px;
+                font-size: 0.80rem;
+                gap: 5px;
                 line-height: 1.25;
+                margin-bottom: 0;
+                white-space: nowrap;
+            }}
+            .title-badge:not(.card-collapsed) h1 {{
+                white-space: normal;
+                margin-bottom: 4px;
             }}
             .subtitle {{
                 font-size: 0.70rem;
@@ -718,31 +755,45 @@ html_content = f"""<!DOCTYPE html>
                 margin-top: 4px;
             }}
             .badge-pill {{
-                font-size: 0.56rem;
-                padding: 1px 5px;
+                font-size: 0.54rem;
+                padding: 1px 4px;
             }}
-            .badge-towns {{
-                display: none; /* Hide third badge on mobile / low-height to guarantee 1-line title */
+            .badge-towns,
+            .badge-pa {{
+                display: none; /* Keep collapsed title strictly 1-line on mobile viewports */
             }}
 
-            /* Corridors Card: Dock below header on mobile to prevent overlapping */
+            /* Corridors Card: Docked at top right */
             .corridors-card {{
-                top: calc(max(8px, var(--sat)) + 60px);
+                top: max(8px, var(--sat));
                 right: max(8px, var(--sar));
                 width: auto;
                 max-width: min(280px, calc(100vw - 16px));
                 padding: 8px 12px;
-                border-radius: 10px;
+                border-radius: 12px;
+                z-index: 24;
+                transition: top 0.25s ease, transform 0.35s ease, opacity 0.35s ease, max-height 0.25s ease;
             }}
             .corridors-card.card-collapsed {{
-                padding: 6px 10px;
+                top: max(8px, var(--sat));
+                padding: 5px 9px;
                 width: auto;
                 max-width: none;
+                max-height: 40px;
+                overflow: hidden;
+            }}
+            .corridors-card:not(.card-collapsed) {{
+                top: calc(max(8px, var(--sat)) + 46px);
+                max-height: calc(100vh - 120px);
+                overflow-y: auto;
+                touch-action: pan-y;
+                -webkit-overflow-scrolling: touch;
+                z-index: 70;
             }}
             .corridors-card.card-collapsed .corridor-title {{
                 margin-bottom: 0;
                 font-size: 0.72rem;
-                gap: 6px;
+                gap: 5px;
             }}
             .corridors-card.card-collapsed .corridor-title-extra,
             .corridors-card.card-collapsed .corridor-orient-hint {{
@@ -756,24 +807,33 @@ html_content = f"""<!DOCTYPE html>
 
             /* Legend Card: Positioned at bottom right */
             .legend-card {{
-                bottom: calc(max(8px, var(--sab)) + 54px);
+                bottom: max(8px, var(--sab));
                 right: max(8px, var(--sar));
                 width: auto;
                 max-width: min(280px, calc(100vw - 16px));
                 padding: 8px 12px;
-                border-radius: 10px;
+                border-radius: 12px;
+                z-index: 22;
+                transition: bottom 0.25s ease, transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease;
             }}
             .legend-card.card-collapsed {{
                 bottom: max(8px, var(--sab));
                 right: max(8px, var(--sar));
-                padding: 6px 10px;
+                padding: 5px 9px;
                 width: auto;
                 max-width: none;
+                max-height: 40px;
+                overflow: hidden;
+            }}
+            .legend-card:not(.card-collapsed) {{
+                bottom: calc(max(8px, var(--sab)) + 46px);
+                right: max(8px, var(--sar));
+                z-index: 55;
             }}
             .legend-card.card-collapsed .legend-title {{
                 margin-bottom: 0;
                 font-size: 0.72rem;
-                gap: 6px;
+                gap: 5px;
             }}
             .legend-card.card-collapsed .legend-unit-extra,
             .legend-card.card-collapsed .legend-scale-hint {{
@@ -799,20 +859,25 @@ html_content = f"""<!DOCTYPE html>
                 width: auto;
                 max-width: 440px;
                 margin: 0 auto;
-                max-height: calc(75vh - var(--sab));
+                max-height: min(72vh, 520px);
                 padding: 12px 14px;
-                border-radius: 14px;
+                border-radius: 16px;
                 z-index: 60;
+                touch-action: pan-y;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
             }}
             .controls-panel.card-collapsed {{
-                max-height: 44px;
+                max-height: 40px;
                 width: auto;
                 max-width: none;
-                padding: 6px 10px;
+                padding: 5px 9px;
                 bottom: max(8px, var(--sab));
                 left: max(8px, var(--sal));
                 right: auto;
-                border-radius: 10px;
+                margin: 0;
+                border-radius: 12px;
+                overflow: hidden;
             }}
             .controls-panel.card-collapsed #pin-btn,
             .controls-panel.card-collapsed #hud-hide-btn,
@@ -823,18 +888,50 @@ html_content = f"""<!DOCTYPE html>
                 font-size: 0.74rem;
             }}
 
-            /* Smooth Mobile Drawer Dismiss Animation */
+            /* Hide bottom-right legend pill when controls bottom-sheet drawer is open */
+            body:has(.controls-panel:not(.card-collapsed)) .legend-card,
+            body.controls-expanded .legend-card {{
+                display: none !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                visibility: hidden !important;
+                transform: translateY(20px);
+            }}
+
+            /* Hide top-right corridors pill when title description dropdown is open */
+            body:has(#title-card:not(.card-collapsed)) .corridors-card,
+            body.title-expanded .corridors-card {{
+                display: none !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                visibility: hidden !important;
+                transform: translateY(-20px);
+            }}
+
+            /* Smooth Mobile Drawer Dismiss Animation (Vertical only to prevent horizontal overflow) */
             body.hud-hidden .controls-panel {{
                 transform: translateY(120%);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
             }}
             body.hud-hidden .corridors-card {{
-                transform: translateX(120%);
+                transform: translateY(-40px);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
             }}
             body.hud-hidden .legend-card {{
-                transform: translateX(120%);
+                transform: translateY(40px);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
             }}
             body.hud-hidden header .title-badge {{
-                transform: translateY(-120%);
+                transform: translateY(-40px);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
             }}
 
             /* Touch-Friendly Action Targets (min 44px) */
@@ -842,6 +939,7 @@ html_content = f"""<!DOCTYPE html>
                 min-height: 44px;
                 padding: 8px 10px;
                 font-size: 0.78rem;
+                touch-action: manipulation;
             }}
             .btn-group {{
                 grid-template-columns: 1fr 1fr;
@@ -852,20 +950,24 @@ html_content = f"""<!DOCTYPE html>
                 gap: 6px;
             }}
             .card-collapse-btn {{
-                min-width: 36px;
-                min-height: 36px;
+                min-width: 44px;
+                min-height: 44px;
                 font-size: 0.85rem;
+                touch-action: manipulation;
             }}
             .header-btn {{
-                min-height: 38px;
+                min-height: 44px;
+                min-width: 44px;
                 padding: 6px 10px;
+                touch-action: manipulation;
             }}
             .header-btn.close-btn {{
-                min-width: 38px;
-                min-height: 38px;
+                min-width: 44px;
+                min-height: 44px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
+                touch-action: manipulation;
             }}
 
             /* Floating Controls Toggle */
@@ -875,6 +977,7 @@ html_content = f"""<!DOCTYPE html>
                 bottom: max(12px, var(--sab));
                 left: max(12px, var(--sal));
                 font-size: 0.82rem;
+                touch-action: manipulation;
             }}
             .hud-badge-key {{
                 display: none;
@@ -882,10 +985,11 @@ html_content = f"""<!DOCTYPE html>
 
             /* Probe Card on Mobile */
             #probe-card {{
-                top: calc(max(8px, var(--sat)) + 60px);
+                top: calc(max(8px, var(--sat)) + 48px);
                 max-width: calc(100vw - 24px);
                 padding: 6px 12px;
                 min-width: 200px;
+                z-index: 30;
             }}
             #probe-val {{
                 font-size: 0.90rem;
@@ -899,6 +1003,7 @@ html_content = f"""<!DOCTYPE html>
                 font-size: 0.62rem;
                 padding: 3px 6px;
                 border-radius: 5px;
+                touch-action: manipulation;
             }}
             .poi-label strong {{
                 font-size: 0.65rem;
@@ -917,7 +1022,7 @@ html_content = f"""<!DOCTYPE html>
                 width: calc(100vw - 28px);
                 max-width: 360px;
                 padding: 14px 16px;
-                border-radius: 12px;
+                border-radius: 14px;
             }}
             #feature-modal h3 {{
                 font-size: 0.95rem;
@@ -939,20 +1044,28 @@ html_content = f"""<!DOCTYPE html>
         @media (max-height: 500px) and (orientation: landscape) {{
             .controls-panel {{
                 max-height: calc(100vh - 16px);
-                max-width: 320px;
+                max-width: 300px;
                 left: max(8px, var(--sal));
                 right: auto;
                 bottom: max(8px, var(--sab));
+                margin: 0;
             }}
-            .corridors-card {{
-                max-height: calc(100vh - 65px);
+            .corridors-card:not(.card-collapsed) {{
+                max-height: calc(100vh - 56px);
+                max-width: 250px;
                 overflow-y: auto;
             }}
         }}
 
         @media (max-width: 480px) {{
+            .title-badge {{
+                max-width: calc(100vw - 110px);
+            }}
+            .title-text-extra {{
+                display: none;
+            }}
             h1 {{
-                font-size: 0.80rem;
+                font-size: 0.78rem;
             }}
             .panel-title-area {{
                 font-size: 0.74rem;
@@ -965,6 +1078,27 @@ html_content = f"""<!DOCTYPE html>
                 padding: 8px 3px;
             }}
         }}
+
+        @media (max-width: 360px) {{
+            .title-badge {{
+                max-width: calc(100vw - 100px);
+            }}
+            .title-badge .badge-pill {{
+                display: none;
+            }}
+            h1 {{
+                font-size: 0.72rem;
+            }}
+            .corridors-card.card-collapsed {{
+                padding: 4px 6px;
+            }}
+            .legend-card.card-collapsed {{
+                padding: 4px 6px;
+            }}
+            .controls-panel.card-collapsed {{
+                padding: 4px 6px;
+            }}
+        }}
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -974,10 +1108,10 @@ html_content = f"""<!DOCTYPE html>
     <header>
         <div class="title-badge" id="title-card">
             <h1>
-                Appalachian 3D Topography
+                <span class="title-text">Appalachian 3D<span class="title-text-extra"> Topography</span></span>
                 <span class="badge-pill">USGS DEM</span>
-                <span class="badge-pill badge-pa">Pennsylvania</span>
-                <span class="badge-pill badge-towns">17 Towns &amp; Boroughs</span>
+                <span class="badge-pill badge-pa">PA</span>
+                <span class="badge-pill badge-towns">17 Towns</span>
                 <button id="toggle-title-btn" class="card-collapse-btn" style="margin-left: auto;" title="Collapse / Expand Description"><span>▾</span></button>
             </h1>
             <div class="card-content">
@@ -1340,6 +1474,7 @@ html_content = f"""<!DOCTYPE html>
             }}
 
             setupHUDManager();
+            updateControlsOpenState();
             animate();
         }}
 
@@ -1710,7 +1845,7 @@ html_content = f"""<!DOCTYPE html>
                 tempV.set(p.worldX, p.currentWorldY + p.needleH + 0.35, p.worldZ);
                 tempV.project(camera);
 
-                if (tempV.z > 1.0 || tempV.x < -1.1 || tempV.x > 1.1 || tempV.y < -1.1 || tempV.y > 1.1) {{
+                if (tempV.z > 1.0 || tempV.x < -1.05 || tempV.x > 1.05 || tempV.y < -1.05 || tempV.y > 1.05) {{
                     p.domElement.style.display = "none";
                     return;
                 }}
@@ -1730,10 +1865,16 @@ html_content = f"""<!DOCTYPE html>
 
             const placedBoxes = [];
             visiblePois.forEach(p => {{
-                const x0 = p.screenX - boxW * 0.5;
-                const y0 = p.screenY - boxH;
-                const x1 = x0 + boxW;
-                const y1 = p.screenY;
+                const labelW = p.domElement.offsetWidth || boxW;
+                const labelH = p.domElement.offsetHeight || boxH;
+                const halfW = labelW * 0.5;
+                const clampedX = Math.max(halfW + 4, Math.min(window.innerWidth - halfW - 4, p.screenX));
+                const clampedY = Math.max(labelH + 4, Math.min(window.innerHeight - 4, p.screenY));
+
+                const x0 = clampedX - halfW;
+                const y0 = clampedY - labelH;
+                const x1 = x0 + labelW;
+                const y1 = clampedY;
 
                 let collides = false;
                 for (let b of placedBoxes) {{
@@ -1747,8 +1888,8 @@ html_content = f"""<!DOCTYPE html>
                     p.domElement.style.display = "none";
                 }} else {{
                     p.domElement.style.display = "block";
-                    p.domElement.style.left = p.screenX + "px";
-                    p.domElement.style.top = p.screenY + "px";
+                    p.domElement.style.left = clampedX + "px";
+                    p.domElement.style.top = clampedY + "px";
                     placedBoxes.push({{ x0, y0, x1, y1 }});
                 }}
             }});
@@ -1822,6 +1963,12 @@ html_content = f"""<!DOCTYPE html>
         let probeTimer = null;
         const HIDE_TIMEOUT_MS = 4000;
 
+        function updateControlsOpenState() {{
+            const controlsPanel = document.getElementById("controls-panel");
+            const isExpanded = controlsPanel && !controlsPanel.classList.contains("card-collapsed");
+            document.body.classList.toggle("controls-expanded", !!isExpanded);
+        }}
+
         function showHUD() {{
             isHudVisible = true;
             document.body.classList.remove("hud-hidden");
@@ -1829,6 +1976,7 @@ html_content = f"""<!DOCTYPE html>
                 const controlsPanel = document.getElementById("controls-panel");
                 if (controlsPanel) controlsPanel.classList.remove("card-collapsed");
             }}
+            updateControlsOpenState();
             resetAutoHideTimer();
         }}
 
@@ -1838,6 +1986,7 @@ html_content = f"""<!DOCTYPE html>
             if ((isPinned || modalOpen) && !force) return;
             isHudVisible = false;
             document.body.classList.add("hud-hidden");
+            updateControlsOpenState();
             if (autoHideTimer) {{
                 clearTimeout(autoHideTimer);
                 autoHideTimer = null;
@@ -1910,6 +2059,22 @@ html_content = f"""<!DOCTYPE html>
                     btn.addEventListener("click", (e) => {{
                         e.stopPropagation();
                         card.classList.toggle("card-collapsed");
+                        const isMobile = window.innerWidth <= 768 || window.innerHeight <= 500;
+                        if (cardId === "controls-panel") {{
+                            updateControlsOpenState();
+                        }} else if (cardId === "title-card" && !card.classList.contains("card-collapsed") && isMobile) {{
+                            const cc = document.getElementById("corridors-card");
+                            if (cc) cc.classList.add("card-collapsed");
+                        }} else if (cardId === "corridors-card" && !card.classList.contains("card-collapsed") && isMobile) {{
+                            const tc = document.getElementById("title-card");
+                            if (tc) tc.classList.add("card-collapsed");
+                        }} else if (cardId === "legend-card" && !card.classList.contains("card-collapsed") && isMobile) {{
+                            const cp = document.getElementById("controls-panel");
+                            if (cp) {{
+                                cp.classList.add("card-collapsed");
+                                updateControlsOpenState();
+                            }}
+                        }}
                     }});
                 }}
             }};
@@ -1928,6 +2093,19 @@ html_content = f"""<!DOCTYPE html>
                     header.addEventListener("click", (e) => {{
                         if (e.target.closest("#pin-btn") || e.target.closest("#hud-hide-btn") || e.target.closest(".card-collapse-btn")) return;
                         panel.classList.toggle("card-collapsed");
+                        const isMobile = window.innerWidth <= 768 || window.innerHeight <= 500;
+                        if (panelId === "controls-panel") {{
+                            updateControlsOpenState();
+                        }} else if (panelId === "legend-card" && !panel.classList.contains("card-collapsed") && isMobile) {{
+                            const cp = document.getElementById("controls-panel");
+                            if (cp && !cp.classList.contains("card-collapsed")) {{
+                                cp.classList.add("card-collapsed");
+                                updateControlsOpenState();
+                            }}
+                        }} else if (panelId === "corridors-card" && !panel.classList.contains("card-collapsed") && isMobile) {{
+                            const tc = document.getElementById("title-card");
+                            if (tc) tc.classList.add("card-collapsed");
+                        }}
                     }});
                 }}
             }};
@@ -1943,6 +2121,10 @@ html_content = f"""<!DOCTYPE html>
                     titleH1.addEventListener("click", (e) => {{
                         if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
                         titleCard.classList.toggle("card-collapsed");
+                        if (!titleCard.classList.contains("card-collapsed") && (window.innerWidth <= 768 || window.innerHeight <= 500)) {{
+                            const cc = document.getElementById("corridors-card");
+                            if (cc) cc.classList.add("card-collapsed");
+                        }}
                     }});
                 }}
             }}
@@ -2008,6 +2190,10 @@ html_content = f"""<!DOCTYPE html>
 
             // Pointer down on canvas
             renderer.domElement.addEventListener("pointerdown", () => {{
+                const modal = document.getElementById("feature-modal");
+                if (modal && modal.style.display === "block") {{
+                    modal.style.display = "none";
+                }}
                 if (!isPinned && isHudVisible) {{
                     hideHUD();
                 }}
