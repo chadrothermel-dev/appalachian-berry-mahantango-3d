@@ -13,18 +13,27 @@ html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appalachian 3D Topographical Explorer: Berry & Mahantango Mountains, Lykens Valley</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Appalachian 3D Topographical Explorer: Berry &amp; Mahantango Mountains, Lykens Valley</title>
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-        body {{
+        :root {{
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+        }}
+        html, body {{
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #080c16;
             color: #f1f5f9;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }}
         #canvas-container {{
             width: 100%;
@@ -33,14 +42,22 @@ html_content = f"""<!DOCTYPE html>
             top: 0;
             left: 0;
             cursor: grab;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }}
         #canvas-container:active {{ cursor: grabbing; }}
+        #canvas-container canvas {{
+            display: block;
+            touch-action: none;
+        }}
         
         header {{
             position: absolute;
-            top: 16px;
-            left: 16px;
-            right: 16px;
+            top: max(16px, var(--sat));
+            left: max(16px, var(--sal));
+            right: max(16px, var(--sar));
             pointer-events: none;
             display: flex;
             justify-content: space-between;
@@ -50,6 +67,7 @@ html_content = f"""<!DOCTYPE html>
         .title-badge {{
             background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.16);
             padding: 14px 20px;
             border-radius: 12px;
@@ -92,10 +110,11 @@ html_content = f"""<!DOCTYPE html>
 
         .controls-panel {{
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: max(20px, var(--sab));
+            left: max(20px, var(--sal));
             background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 12px;
             padding: 16px;
@@ -104,12 +123,28 @@ html_content = f"""<!DOCTYPE html>
             z-index: 10;
             max-height: calc(100vh - 170px);
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }}
+        .controls-panel::-webkit-scrollbar {{
+            width: 6px;
+        }}
+        .controls-panel::-webkit-scrollbar-track {{
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 3px;
+        }}
+        .controls-panel::-webkit-scrollbar-thumb {{
+            background: #334155;
+            border-radius: 3px;
+        }}
+        .controls-panel::-webkit-scrollbar-thumb:hover {{
+            background: #475569;
         }}
         .control-group {{ margin-bottom: 12px; }}
         .control-group:last-child {{ margin-bottom: 0; }}
         .control-group label {{
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 0.76rem;
             font-weight: 600;
             color: #cbd5e1;
@@ -121,13 +156,40 @@ html_content = f"""<!DOCTYPE html>
             font-weight: 700;
         }}
         .control-group input[type="range"] {{
+            -webkit-appearance: none;
+            appearance: none;
             width: 100%;
-            height: 5px;
-            border-radius: 3px;
+            height: 7px;
+            border-radius: 4px;
             background: #334155;
             outline: none;
-            accent-color: #38bdf8;
             cursor: pointer;
+            margin: 6px 0;
+        }}
+        .control-group input[type="range"]::-webkit-slider-thumb {{
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #38bdf8;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.1s;
+        }}
+        .control-group input[type="range"]::-moz-range-thumb {{
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #38bdf8;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            cursor: pointer;
+        }}
+        .control-group input[type="range"]:active::-webkit-slider-thumb {{
+            transform: scale(1.15);
+            background: #0284c7;
         }}
         .btn-group {{
             display: grid;
@@ -151,6 +213,10 @@ html_content = f"""<!DOCTYPE html>
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
         }}
         button.action-btn:hover {{
             background: #38bdf8;
@@ -166,10 +232,11 @@ html_content = f"""<!DOCTYPE html>
 
         .corridors-card {{
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: max(20px, var(--sat));
+            right: max(20px, var(--sar));
             background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 12px;
             padding: 12px 16px;
@@ -198,6 +265,7 @@ html_content = f"""<!DOCTYPE html>
             font-size: 0.70rem;
             cursor: pointer;
             transition: background 0.15s, border-color 0.15s;
+            touch-action: manipulation;
         }}
         .corridor-item:hover {{
             background: rgba(56, 189, 248, 0.18);
@@ -208,10 +276,11 @@ html_content = f"""<!DOCTYPE html>
 
         .legend-card {{
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: max(20px, var(--sab));
+            right: max(20px, var(--sar));
             background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 12px;
             padding: 12px 16px;
@@ -225,6 +294,7 @@ html_content = f"""<!DOCTYPE html>
             color: #cbd5e1;
             margin-bottom: 7px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
         }}
         .legend-bar {{
@@ -249,13 +319,14 @@ html_content = f"""<!DOCTYPE html>
             transform: translate(-50%, -50%);
             background: rgba(15, 23, 42, 0.96);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid #38bdf8;
             border-radius: 14px;
             padding: 18px 22px;
             width: 380px;
             max-width: 90vw;
             box-shadow: 0 20px 45px rgba(0,0,0,0.85);
-            z-index: 20;
+            z-index: 120;
             display: none;
         }}
         #feature-modal h3 {{
@@ -288,11 +359,12 @@ html_content = f"""<!DOCTYPE html>
 
         #probe-card {{
             position: absolute;
-            top: 20px;
+            top: max(20px, var(--sat));
             left: 50%;
             transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(56, 189, 248, 0.6);
             border-radius: 10px;
             padding: 8px 16px;
@@ -340,6 +412,7 @@ html_content = f"""<!DOCTYPE html>
             box-shadow: 0 4px 14px rgba(0,0,0,0.65);
             transition: opacity 0.15s, transform 0.15s;
             cursor: pointer;
+            touch-action: manipulation;
         }}
         .poi-label:hover {{
             transform: translate(-50%, -105%) scale(1.06);
@@ -444,8 +517,8 @@ html_content = f"""<!DOCTYPE html>
         /* Floating Controls Toggle Button */
         #floating-hud-toggle {{
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: max(20px, var(--sab));
+            left: max(20px, var(--sal));
             z-index: 100;
             display: flex;
             align-items: center;
@@ -456,6 +529,7 @@ html_content = f"""<!DOCTYPE html>
             border: 1px solid rgba(56, 189, 248, 0.45);
             color: #f8fafc;
             padding: 10px 18px;
+            min-height: 44px;
             border-radius: 24px;
             cursor: pointer;
             box-shadow: 0 10px 25px rgba(0,0,0,0.65), 0 0 16px rgba(56, 189, 248, 0.25);
@@ -465,6 +539,7 @@ html_content = f"""<!DOCTYPE html>
             transform: translateY(12px) scale(0.92);
             pointer-events: none;
             visibility: hidden;
+            touch-action: manipulation;
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                         transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                         background 0.15s, border-color 0.15s, box-shadow 0.15s, visibility 0.3s;
@@ -535,6 +610,7 @@ html_content = f"""<!DOCTYPE html>
             align-items: center;
             gap: 5px;
             transition: all 0.15s ease;
+            touch-action: manipulation;
         }}
         .header-btn:hover {{
             background: #334155;
@@ -570,6 +646,7 @@ html_content = f"""<!DOCTYPE html>
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            touch-action: manipulation;
         }}
         .card-collapse-btn:hover {{
             background: rgba(56, 189, 248, 0.18);
@@ -592,9 +669,301 @@ html_content = f"""<!DOCTYPE html>
             border-bottom: none;
             padding-bottom: 0;
         }}
+        .corridors-card.card-collapsed {{
+            padding-bottom: 8px;
+        }}
+        .corridors-card.card-collapsed .corridor-title {{
+            margin-bottom: 0;
+        }}
+        .legend-card.card-collapsed {{
+            padding-bottom: 8px;
+        }}
+        .legend-card.card-collapsed .legend-title {{
+            margin-bottom: 0;
+        }}
         .card-collapse-btn span {{
             display: inline-block;
             transition: transform 0.2s ease;
+        }}
+
+        /* ==========================================================================
+           Responsive Mobile Adaptations (<= 768px width or <= 500px height)
+           ========================================================================== */
+        @media (max-width: 768px), (max-height: 500px) {{
+            header {{
+                top: max(8px, var(--sat));
+                left: max(8px, var(--sal));
+                right: max(8px, var(--sar));
+                flex-direction: column;
+                gap: 6px;
+                pointer-events: none;
+            }}
+            .title-badge {{
+                width: 100%;
+                max-width: 100%;
+                padding: 7px 12px;
+                border-radius: 10px;
+            }}
+            .title-badge.card-collapsed {{
+                padding-bottom: 7px;
+            }}
+            h1 {{
+                font-size: 0.85rem;
+                gap: 6px;
+                line-height: 1.25;
+            }}
+            .subtitle {{
+                font-size: 0.70rem;
+                line-height: 1.35;
+                margin-top: 4px;
+            }}
+            .badge-pill {{
+                font-size: 0.56rem;
+                padding: 1px 5px;
+            }}
+            .badge-towns {{
+                display: none; /* Hide third badge on mobile / low-height to guarantee 1-line title */
+            }}
+
+            /* Corridors Card: Dock below header on mobile to prevent overlapping */
+            .corridors-card {{
+                top: calc(max(8px, var(--sat)) + 60px);
+                right: max(8px, var(--sar));
+                width: auto;
+                max-width: min(280px, calc(100vw - 16px));
+                padding: 8px 12px;
+                border-radius: 10px;
+            }}
+            .corridors-card.card-collapsed {{
+                padding: 6px 10px;
+                width: auto;
+                max-width: none;
+            }}
+            .corridors-card.card-collapsed .corridor-title {{
+                margin-bottom: 0;
+                font-size: 0.72rem;
+                gap: 6px;
+            }}
+            .corridors-card.card-collapsed .corridor-title-extra,
+            .corridors-card.card-collapsed .corridor-orient-hint {{
+                display: none !important;
+            }}
+            .corridor-item {{
+                min-height: 44px;
+                padding: 6px 10px;
+                font-size: 0.72rem;
+            }}
+
+            /* Legend Card: Positioned at bottom right */
+            .legend-card {{
+                bottom: calc(max(8px, var(--sab)) + 54px);
+                right: max(8px, var(--sar));
+                width: auto;
+                max-width: min(280px, calc(100vw - 16px));
+                padding: 8px 12px;
+                border-radius: 10px;
+            }}
+            .legend-card.card-collapsed {{
+                bottom: max(8px, var(--sab));
+                right: max(8px, var(--sar));
+                padding: 6px 10px;
+                width: auto;
+                max-width: none;
+            }}
+            .legend-card.card-collapsed .legend-title {{
+                margin-bottom: 0;
+                font-size: 0.72rem;
+                gap: 6px;
+            }}
+            .legend-card.card-collapsed .legend-unit-extra,
+            .legend-card.card-collapsed .legend-scale-hint {{
+                display: none !important;
+            }}
+            .legend-title {{
+                font-size: 0.70rem;
+                margin-bottom: 5px;
+            }}
+            .legend-bar {{
+                height: 10px;
+                margin-bottom: 4px;
+            }}
+            .legend-ticks {{
+                font-size: 0.60rem;
+            }}
+
+            /* Controls Panel: Sleek mobile bottom drawer / sheet */
+            .controls-panel {{
+                left: max(8px, var(--sal));
+                right: max(8px, var(--sar));
+                bottom: max(8px, var(--sab));
+                width: auto;
+                max-width: 440px;
+                margin: 0 auto;
+                max-height: calc(75vh - var(--sab));
+                padding: 12px 14px;
+                border-radius: 14px;
+                z-index: 60;
+            }}
+            .controls-panel.card-collapsed {{
+                max-height: 44px;
+                width: auto;
+                max-width: none;
+                padding: 6px 10px;
+                bottom: max(8px, var(--sab));
+                left: max(8px, var(--sal));
+                right: auto;
+                border-radius: 10px;
+            }}
+            .controls-panel.card-collapsed #pin-btn,
+            .controls-panel.card-collapsed #hud-hide-btn,
+            .controls-panel.card-collapsed .panel-title-extra {{
+                display: none !important;
+            }}
+            .controls-panel.card-collapsed .panel-title-area span {{
+                font-size: 0.74rem;
+            }}
+
+            /* Smooth Mobile Drawer Dismiss Animation */
+            body.hud-hidden .controls-panel {{
+                transform: translateY(120%);
+            }}
+            body.hud-hidden .corridors-card {{
+                transform: translateX(120%);
+            }}
+            body.hud-hidden .legend-card {{
+                transform: translateX(120%);
+            }}
+            body.hud-hidden header .title-badge {{
+                transform: translateY(-120%);
+            }}
+
+            /* Touch-Friendly Action Targets (min 44px) */
+            button.action-btn {{
+                min-height: 44px;
+                padding: 8px 10px;
+                font-size: 0.78rem;
+            }}
+            .btn-group {{
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }}
+            .btn-group-3 {{
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+            }}
+            .card-collapse-btn {{
+                min-width: 36px;
+                min-height: 36px;
+                font-size: 0.85rem;
+            }}
+            .header-btn {{
+                min-height: 38px;
+                padding: 6px 10px;
+            }}
+            .header-btn.close-btn {{
+                min-width: 38px;
+                min-height: 38px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }}
+
+            /* Floating Controls Toggle */
+            #floating-hud-toggle {{
+                min-height: 44px;
+                padding: 10px 18px;
+                bottom: max(12px, var(--sab));
+                left: max(12px, var(--sal));
+                font-size: 0.82rem;
+            }}
+            .hud-badge-key {{
+                display: none;
+            }}
+
+            /* Probe Card on Mobile */
+            #probe-card {{
+                top: calc(max(8px, var(--sat)) + 60px);
+                max-width: calc(100vw - 24px);
+                padding: 6px 12px;
+                min-width: 200px;
+            }}
+            #probe-val {{
+                font-size: 0.90rem;
+            }}
+            #probe-sub {{
+                font-size: 0.62rem;
+            }}
+
+            /* Mobile POI Labels */
+            .poi-label {{
+                font-size: 0.62rem;
+                padding: 3px 6px;
+                border-radius: 5px;
+            }}
+            .poi-label strong {{
+                font-size: 0.65rem;
+            }}
+            .poi-label span {{
+                font-size: 0.58rem !important;
+            }}
+            .tag-pill {{
+                font-size: 0.50rem;
+                padding: 1px 3px;
+                margin-left: 2px;
+            }}
+
+            /* Modal on Mobile */
+            #feature-modal {{
+                width: calc(100vw - 28px);
+                max-width: 360px;
+                padding: 14px 16px;
+                border-radius: 12px;
+            }}
+            #feature-modal h3 {{
+                font-size: 0.95rem;
+            }}
+            #feature-modal .feat-elev {{
+                font-size: 0.76rem;
+            }}
+            #feature-modal .feat-desc {{
+                font-size: 0.72rem;
+                line-height: 1.4;
+            }}
+            #feature-modal .modal-btns button.action-btn {{
+                min-height: 44px;
+                padding: 8px 16px;
+                font-size: 0.80rem;
+            }}
+        }}
+
+        @media (max-height: 500px) and (orientation: landscape) {{
+            .controls-panel {{
+                max-height: calc(100vh - 16px);
+                max-width: 320px;
+                left: max(8px, var(--sal));
+                right: auto;
+                bottom: max(8px, var(--sab));
+            }}
+            .corridors-card {{
+                max-height: calc(100vh - 65px);
+                overflow-y: auto;
+            }}
+        }}
+
+        @media (max-width: 480px) {{
+            h1 {{
+                font-size: 0.80rem;
+            }}
+            .panel-title-area {{
+                font-size: 0.74rem;
+            }}
+            .btn-group-3 {{
+                gap: 4px;
+            }}
+            .btn-group-3 button.action-btn {{
+                font-size: 0.70rem;
+                padding: 8px 3px;
+            }}
         }}
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -628,9 +997,9 @@ html_content = f"""<!DOCTYPE html>
     <!-- Regional Border Corridors -->
     <div class="corridors-card" id="corridors-card">
         <div class="corridor-title">
-            <span>Bordering Corridors</span>
+            <span><span class="corridor-title-extra">Bordering </span>Corridors</span>
             <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 0.65rem; color: #38bdf8;">Click to Orient</span>
+                <span class="corridor-orient-hint" style="font-size: 0.65rem; color: #38bdf8;">Click to Orient</span>
                 <button id="toggle-corridors-btn" class="card-collapse-btn" title="Collapse / Expand Corridors"><span>▾</span></button>
             </div>
         </div>
@@ -662,7 +1031,7 @@ html_content = f"""<!DOCTYPE html>
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
-                <span>Controls &amp; Layers</span>
+                <span>Controls<span class="panel-title-extra"> &amp; Layers</span></span>
             </div>
             <div class="panel-header-buttons">
                 <button id="pin-btn" class="header-btn" title="Pin controls (keep always visible)">
@@ -744,7 +1113,10 @@ html_content = f"""<!DOCTYPE html>
 
     <!-- Feature Inspector Modal -->
     <div id="feature-modal">
-        <h3 id="modal-name">Town Name <span id="modal-type-badge" class="tag-pill bor">Borough</span></h3>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+            <h3 id="modal-name" style="margin-bottom: 0;">Town Name <span id="modal-type-badge" class="tag-pill bor">Borough</span></h3>
+            <button id="modal-x-btn" class="header-btn close-btn" style="min-width: 32px; min-height: 32px; margin-left: 8px;" title="Close Modal">✕</button>
+        </div>
         <div class="feat-elev" id="modal-elev">Elevation: -- ft AMSL</div>
         <div class="feat-desc" id="modal-desc">Description of the town or feature.</div>
         <div class="modal-btns">
@@ -755,9 +1127,9 @@ html_content = f"""<!DOCTYPE html>
 
     <div class="legend-card" id="legend-card">
         <div class="legend-title">
-            <span>Elevation (AMSL)</span>
+            <span>Elevation<span class="legend-unit-extra"> (AMSL)</span></span>
             <div style="display: flex; align-items: center; gap: 6px;">
-                <span>Hypsometric Scale</span>
+                <span class="legend-scale-hint">Hypsometric Scale</span>
                 <button id="toggle-legend-btn" class="card-collapse-btn" title="Collapse / Expand Legend"><span>▾</span></button>
             </div>
         </div>
@@ -844,6 +1216,11 @@ html_content = f"""<!DOCTYPE html>
             controls.minDistance = 6;
             controls.maxDistance = 260;
             controls.target.set(10, 2, -2);
+            controls.touches = {{
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: THREE.TOUCH.DOLLY_PAN
+            }};
+            renderer.domElement.style.touchAction = "none";
 
             // Lighting
             const ambient = new THREE.AmbientLight(0xffffff, 0.52);
@@ -929,15 +1306,38 @@ html_content = f"""<!DOCTYPE html>
             }});
 
             // Modal Handlers
-            document.getElementById("modal-close-btn").addEventListener("click", () => {{
+            const closeModal = () => {{
                 document.getElementById("feature-modal").style.display = "none";
-            }});
+            }};
+            document.getElementById("modal-close-btn").addEventListener("click", closeModal);
+            const modalXBtn = document.getElementById("modal-x-btn");
+            if (modalXBtn) {{
+                modalXBtn.addEventListener("click", closeModal);
+            }}
             document.getElementById("modal-fly-btn").addEventListener("click", () => {{
                 if (selectedPOI) {{
                     flyToFeature(selectedPOI);
-                    document.getElementById("feature-modal").style.display = "none";
+                    closeModal();
                 }}
             }});
+
+            // Mobile default layout adaptation
+            const isMobile = window.innerWidth <= 768 || window.innerHeight <= 500;
+            if (isMobile) {{
+                const titleCard = document.getElementById("title-card");
+                if (titleCard) titleCard.classList.add("card-collapsed");
+
+                const corridorsCard = document.getElementById("corridors-card");
+                if (corridorsCard) corridorsCard.classList.add("card-collapsed");
+
+                const legendCard = document.getElementById("legend-card");
+                if (legendCard) legendCard.classList.add("card-collapsed");
+
+                const controlsPanel = document.getElementById("controls-panel");
+                if (controlsPanel) controlsPanel.classList.add("card-collapsed");
+
+                setLabelFilter("major");
+            }}
 
             setupHUDManager();
             animate();
@@ -1324,13 +1724,15 @@ html_content = f"""<!DOCTYPE html>
             // Smart Screen-space Collision Avoidance
             visiblePois.sort((a, b) => a.priority - b.priority);
 
+            const isSmallScreen = window.innerWidth <= 768;
+            const boxW = isSmallScreen ? 84 : 110;
+            const boxH = isSmallScreen ? 24 : 32;
+
             const placedBoxes = [];
             visiblePois.forEach(p => {{
-                const w = 110;
-                const h = 32;
-                const x0 = p.screenX - w * 0.5;
-                const y0 = p.screenY - h;
-                const x1 = x0 + w;
+                const x0 = p.screenX - boxW * 0.5;
+                const y0 = p.screenY - boxH;
+                const x1 = x0 + boxW;
                 const y1 = p.screenY;
 
                 let collides = false;
@@ -1423,6 +1825,10 @@ html_content = f"""<!DOCTYPE html>
         function showHUD() {{
             isHudVisible = true;
             document.body.classList.remove("hud-hidden");
+            if (window.innerWidth <= 768 || window.innerHeight <= 500) {{
+                const controlsPanel = document.getElementById("controls-panel");
+                if (controlsPanel) controlsPanel.classList.remove("card-collapsed");
+            }}
             resetAutoHideTimer();
         }}
 
@@ -1468,7 +1874,8 @@ html_content = f"""<!DOCTYPE html>
                 clearTimeout(autoHideTimer);
                 autoHideTimer = null;
             }}
-            if (isPinned || isHoveringHUD || isInteractingCanvas || !isHudVisible) return;
+            const isMobile = window.innerWidth <= 768 || window.innerHeight <= 500;
+            if (isMobile || isPinned || isHoveringHUD || isInteractingCanvas || !isHudVisible) return;
             autoHideTimer = setTimeout(() => {{
                 hideHUD();
             }}, HIDE_TIMEOUT_MS);
@@ -1476,10 +1883,14 @@ html_content = f"""<!DOCTYPE html>
 
         function setupHUDManager() {{
             // Floating toggle button
-            document.getElementById("floating-hud-toggle").addEventListener("click", (e) => {{
+            const hudToggle = document.getElementById("floating-hud-toggle");
+            hudToggle.addEventListener("click", (e) => {{
                 e.stopPropagation();
                 showHUD();
             }});
+            hudToggle.addEventListener("touchstart", (e) => {{
+                e.stopPropagation();
+            }}, {{ passive: true }});
 
             // Panel header buttons
             document.getElementById("pin-btn").addEventListener("click", (e) => {{
@@ -1507,8 +1918,37 @@ html_content = f"""<!DOCTYPE html>
             setupCollapse("toggle-corridors-btn", "corridors-card");
             setupCollapse("toggle-legend-btn", "legend-card");
 
-            // Prevent auto-hiding while cursor is inside any control panel
-            const hudCards = document.querySelectorAll(".controls-panel, .corridors-card, .legend-card, .title-badge, #feature-modal");
+            // Header-wide tap toggle for cards (comfortable touch targets)
+            const setupHeaderToggle = (panelId) => {{
+                const panel = document.getElementById(panelId);
+                if (!panel) return;
+                const header = panel.querySelector(".panel-header") || panel.querySelector(".corridor-title") || panel.querySelector(".legend-title");
+                if (header) {{
+                    header.style.cursor = "pointer";
+                    header.addEventListener("click", (e) => {{
+                        if (e.target.closest("#pin-btn") || e.target.closest("#hud-hide-btn") || e.target.closest(".card-collapse-btn")) return;
+                        panel.classList.toggle("card-collapsed");
+                    }});
+                }}
+            }};
+            setupHeaderToggle("controls-panel");
+            setupHeaderToggle("corridors-card");
+            setupHeaderToggle("legend-card");
+
+            const titleCard = document.getElementById("title-card");
+            if (titleCard) {{
+                const titleH1 = titleCard.querySelector("h1");
+                if (titleH1) {{
+                    titleH1.style.cursor = "pointer";
+                    titleH1.addEventListener("click", (e) => {{
+                        if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+                        titleCard.classList.toggle("card-collapsed");
+                    }});
+                }}
+            }}
+
+            // Prevent auto-hiding while cursor or finger is inside any control panel
+            const hudCards = document.querySelectorAll(".controls-panel, .corridors-card, .legend-card, .title-badge, #feature-modal, #floating-hud-toggle");
             hudCards.forEach(card => {{
                 card.addEventListener("mouseenter", () => {{
                     isHoveringHUD = true;
@@ -1523,13 +1963,17 @@ html_content = f"""<!DOCTYPE html>
                         resetAutoHideTimer();
                     }}
                 }});
-                card.addEventListener("touchstart", () => {{
+                card.addEventListener("touchstart", (e) => {{
+                    e.stopPropagation();
                     isHoveringHUD = true;
                     if (autoHideTimer) {{
                         clearTimeout(autoHideTimer);
                         autoHideTimer = null;
                     }}
                 }}, {{ passive: true }});
+                card.addEventListener("pointerdown", (e) => {{
+                    e.stopPropagation();
+                }});
             }});
 
             // Detect user interaction with 3D canvas / OrbitControls
@@ -1669,6 +2113,7 @@ html_content = f"""<!DOCTYPE html>
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            updatePOIScreens();
         }}
 
         function animate() {{
